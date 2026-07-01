@@ -1,0 +1,13 @@
+diff --git a/node_modules/@slidev/client/logic/slides.ts b/node_modules/@slidev/client/logic/slides.ts
+index cb156a1..482111a 100644
+--- a/node_modules/@slidev/client/logic/slides.ts
++++ b/node_modules/@slidev/client/logic/slides.ts
+@@ -21,7 +21,7 @@ export function getSlidePath(
+     route = getSlide(route)!
+   const no = route.meta.slide?.frontmatter.routeAlias ?? route.no
+   const path = exporting ? `export/${no}` : presenter ? `presenter/${no}` : `${no}`
+-  return `${import.meta.env.BASE_URL}${path}`
++  return `/${path}`
+ }
+ 
+ export function useIsSlideActive() {
