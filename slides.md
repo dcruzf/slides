@@ -1,10 +1,6 @@
 ---
 theme: default
 title: Modelos de Difusão
-info: |
-  ## Modelos de Difusão
-  Introdução para graduação
-transition: fade
 ---
 
 # Modelos de Difusão
