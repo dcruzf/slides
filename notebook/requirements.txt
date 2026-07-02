@@ -1,0 +1,15 @@
+# Ambiente para o notebook DDPM (make_moons) — Python 3.12, CPU.
+#
+# Para torch em CPU, instale usando o índice do PyTorch:
+#   uv pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+# (com pip: pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu)
+
+torch==2.12.1
+scikit-learn==1.9.0
+matplotlib==3.11.0
+numpy==2.5.0
+pillow==12.3.0
+
+# Para abrir/executar o notebook:
+jupyterlab
+nbconvert==7.17.1

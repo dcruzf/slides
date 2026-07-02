@@ -63,11 +63,15 @@ Analogia: é como encontrar uma agulha num palheiro do tamanho do universo.
 
 Um modelo que aprende a **distribuição dos dados** $p(x)$ e consegue **amostrar** novos exemplos.
 
-```text
-Treinamento:   {fotos de gatos} → aprende p(x = gato)
+<div class="flex justify-center gap-6 my-2">
 
-Geração:       amostra x ~ p(x)  →  nova foto de gato
-```
+![Densidade p(x)](./assets/multimodal_density.png){class="h-52 rounded-lg"}
+
+![Amostras x ~ p(x)](./assets/multimodal_samples.png){class="h-52 rounded-lg"}
+
+</div>
+
+**Treinar:** aprender a paisagem $p(x)$ (esq.). &nbsp; **Gerar:** amostrar $x \sim p(x)$ onde a densidade é alta (dir.).
 
 **Usos:**
 - Geração de imagens, áudio, texto, moléculas
@@ -118,16 +122,21 @@ Mostre uma gif de difusão se tiver. Pode fazer um desenho na lousa: t=0 imagem,
 
 # Intuição Visual
 
-```text
-t = 0    t = 100   t = 200  ...  t = 1000
-[gato]  [gato+]  [gato++]  ...  [ruído]
-         ruído     muito          puro
-                   ruído
-```
+<div class="flex justify-center my-1">
 
-**Treinar:** dado $x_t$ (com ruído), a rede aprende a prever o ruído adicionado.
+![Processo reverso em make_moons](./assets/reverse_diffusion.gif){class="h-80 rounded-lg shadow-xl"}
 
-**Gerar:** começa com ruído puro, aplica a rede 1000× até chegar numa imagem.
+</div>
+
+Exemplo **real** em 2D (`make_moons`): o processo reverso parte do ruído gaussiano e
+reconstrói a distribuição dos dados — o mesmo mecanismo do Stable Diffusion, visível num plano.
+
+**Treinar:** dado $x_t$, a rede aprende a prever o ruído adicionado. &nbsp;
+**Gerar:** começa do ruído puro e aplica a rede passo a passo.
+
+<!--
+GIF gerado pelo notebook notebook/DDPM_make_moons_tutorial.ipynb.
+-->
 
 ---
 layout: center
@@ -339,6 +348,42 @@ Para gerar **uma imagem 512×512**:
 - Com aceleração (DDIM, 50 passos): ~1-2 segundos
 
 > Pesquisa ativa em **reduzir passos de amostragem** mantendo qualidade.
+
+---
+
+# Na Prática — DDPM em ~10 Linhas
+
+Um DDPM completo num dataset 2D de brinquedo (`make_moons`):
+
+```python
+T = 400
+beta = torch.linspace(1e-4, 0.02, T)          # noise schedule
+abar = torch.cumprod(1 - beta, 0)             # ᾱ_t acumulado
+
+for step in range(8000):
+    x0  = sample_batch()                      # duas "luas"
+    t   = torch.randint(0, T, (512,))         # passos aleatórios
+    eps = torch.randn_like(x0)                # ruído alvo
+    xt  = abar[t].sqrt()*x0 + (1-abar[t]).sqrt()*eps   # forward em 1 passo
+    loss = ((model(xt, t) - eps)**2).mean()   # prever o ruído — MSE
+    loss.backward(); opt.step(); opt.zero_grad()
+```
+
+Sem discriminador, sem likelihood explícita — só **MSE do ruído**. Treina em ~2 min de CPU.
+
+---
+
+# Na Prática — Resultado
+
+<div class="flex justify-center">
+
+![Original vs Gerado](./assets/comparison.png){class="h-80 rounded-lg"}
+
+</div>
+
+Após o treino, amostrando do ruído puro: as amostras (rosa) cobrem as duas luas reais (azul).
+
+> Notebook completo e executável: `notebook/DDPM_make_moons_tutorial.ipynb`
 
 ---
 layout: center
